@@ -1,14 +1,14 @@
-from audioSegment import AudioSegment
+from soundBuilder import SoundBuilder
 
-AudioSegment = AudioSegment(sampleRate=128000, numSamples=5 * 128000)
+SoundBuilder = SoundBuilder(sampleRate=128000, numSamples=5 * 128000)
 
-# AudioSegment.addSineWave(120, 0.5)
-# AudioSegment.addSineWave(800, 0.2)
-# AudioSegment.addSineWave(8000, 0.08)
+# SoundBuilder.addSineWave(120, 0.5)
+# SoundBuilder.addSineWave(800, 0.2)
+# SoundBuilder.addSineWave(8000, 0.08)
 
-AudioSegment.addSineWave(440, 0.8)
-AudioSegment.addSineWave(350, 0.8)
+SoundBuilder.addSineWave(440, 0.8)
+SoundBuilder.addSineWave(350, 0.8)
 
-AudioSegment.writeWav()
+SoundBuilder.writeWav()
 
-# fourier.getConstituentFrequencies(AudioSegment.getSamples(), sampleRate=128000)
+# fourier.getConstituentFrequencies(SoundBuilder.getSamples(), sampleRate=128000)

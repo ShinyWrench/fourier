@@ -4,7 +4,7 @@ import wave
 import struct
 
 
-class AudioSegment:
+class SoundBuilder:
 
     def __init__(self, sampleRate, numSamples):
         self.sampleRate = sampleRate
