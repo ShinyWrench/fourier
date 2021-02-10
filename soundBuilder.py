@@ -2,6 +2,7 @@ import numpy as np
 import utils
 import wave
 import struct
+import matplotlib.pyplot as plt
 
 
 class SoundBuilder:
@@ -11,10 +12,28 @@ class SoundBuilder:
         self.numSamples = numSamples
         self.samples_float = np.zeros(self.numSamples)
 
+    def getSamples(self):
+        return self.samples_float[:]
+
     def addSineWave(self, frequency, amplitude):
         sineWave = utils.generateSineWave(
             frequency, amplitude, self.sampleRate, self.numSamples)
         self.samples_float = np.add(self.samples_float, sineWave)
+
+    def plotAmplitudeVsTime(self):
+
+        def getTimeAxisData(sampleRate, numSamples):
+            durationSeconds = numSamples / sampleRate
+            return np.linspace(0, durationSeconds, num=numSamples, endpoint=False)
+
+        plt.figure(1)
+        plt.xlabel("Time")
+        plt.ylabel("Amplitude")
+        plt.plot(
+            getTimeAxisData(self.sampleRate, self.numSamples),
+            self.samples_float
+        )
+        plt.show()
 
     # TODO: Take file-name arg
     def writeWav(self):
