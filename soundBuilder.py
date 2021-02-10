@@ -1,5 +1,4 @@
 import numpy as np
-import utils
 import wave
 import struct
 import matplotlib.pyplot as plt
@@ -16,9 +15,10 @@ class SoundBuilder:
         return self.samples_float[:]
 
     def addSineWave(self, frequency, amplitude):
-        sineWave = utils.generateSineWave(
-            frequency, amplitude, self.sampleRate, self.numSamples)
-        self.samples_float = np.add(self.samples_float, sineWave)
+        # Spread this out to 3 or 4 lines
+        self.samples_float += amplitude * \
+            np.sin(2 * np.pi * frequency / self.sampleRate *
+                   np.arange(self.numSamples))
 
     def plotAmplitudeVsTime(self):
 
