@@ -49,7 +49,7 @@ class SoundBuilder:
     def plotFFT(self):
         fftResult = np.fft.fft(self.samples_float)
         frequencyVector = self.sampleRate * \
-            np.arange(self.numSamples / 2) / self.numSamples
+            np.arange(self.numSamples // 2) / self.numSamples
         magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
         magnitudes[1:] = 2 * magnitudes[1:]
         plt.figure()
