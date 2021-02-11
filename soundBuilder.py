@@ -37,13 +37,13 @@ class SoundBuilder:
     # TODO: abstract FFT result-handling here and in getFreqPeaks
     def plotFFT(self):
         fftResult = np.fft.fft(self.samples_float)
-        plt.figure()
-        plt.xlabel("Frequency")
-        plt.ylabel("Magnitude")
         frequencyVector = self.sampleRate * \
             np.arange(self.numSamples / 2) / self.numSamples
         magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
         magnitudes[1:] = 2 * magnitudes[1:]
+        plt.figure()
+        plt.xlabel("Frequency")
+        plt.ylabel("Magnitude")
         plt.plot(frequencyVector, np.abs(magnitudes))
 
     def getFrequencyPeaksFromFFT(self, magnitudeThreshold=0.001):
