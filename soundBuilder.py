@@ -16,6 +16,10 @@ class SoundBuilder:
 
     def addSineWave(self, frequency, amplitude):
         # Spread this out to 3 or 4 lines
+        # TODO: Test this:
+        # timeVector = np.arange(self.numSamples) / self.sampleRate
+        # self.samples_float += amplitude * \
+        #     np.sin(2 * np.pi * frequency * timeVector)
         self.samples_float += amplitude * \
             np.sin(2 * np.pi * frequency / self.sampleRate *
                    np.arange(self.numSamples))
@@ -33,6 +37,20 @@ class SoundBuilder:
             getTimeAxisData(self.sampleRate, self.numSamples),
             self.samples_float
         )
+
+    def plotFFT(self):
+        fftResult = np.fft.fft(self.samples_float)
+        print("len(fftResult) = %s" % len(fftResult))
+        plt.figure()
+        plt.xlabel("Frequency")
+        plt.ylabel("Magnitude")
+        frequencyVector = self.sampleRate * \
+            np.arange(self.numSamples / 2) / self.numSamples
+        magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
+        magnitudes[1:] = 2 * magnitudes[1:]
+        plt.plot(frequencyVector, np.abs(magnitudes))
+
+    def showPlots(self):
         plt.show()
 
     # TODO: Take file-name arg
