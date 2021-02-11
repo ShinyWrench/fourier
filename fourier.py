@@ -13,8 +13,7 @@ def buildDialTone():
 
 
 def buildSoundWithNSineWaves(numWaves):
-    # soundBuilder = SoundBuilder(sampleRate=44100, numSamples=44100//2)
-    soundBuilder = SoundBuilder(sampleRate=192000, numSamples=192003)
+    soundBuilder = SoundBuilder(sampleRate=44100, numSamples=44100//2)
     for i in range(numWaves):
         frequency = randint(200, 2400)
         amplitude = random() / numWaves
@@ -38,13 +37,12 @@ def doFFTAndPlots(soundBuilder):
     soundBuilder.showPlots()
 
 
-sbGenerated = buildSoundWithNSineWaves(10)
-sbGenerated.writeWav("generated.wav")
-doFFTAndPlots(sbGenerated)
+# sbGenerated = buildSoundWithNSineWaves(10)
+# sbGenerated.writeWav("generated.wav")
+# doFFTAndPlots(sbGenerated)
 
-# doFFTAndPlots(
-#     SoundBuilder(wavFile="classical_mono.wav")
-# )
-
+doFFTAndPlots(
+    SoundBuilder(wavFile="classical_mono.wav")
+)
 
 # fourier.getConstituentFrequencies(soundBuilder.getSamples(), sampleRate=128000)
