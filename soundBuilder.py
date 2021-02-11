@@ -15,9 +15,16 @@ class SoundBuilder:
         print(
             f"average error: {np.average(sbA.getSamples() - sbB.getSamples())}")
 
-    def __init__(self, sampleRate=None, numSamples=None, wavFile=None):
+    @staticmethod
+    def binarySamplesToFloats(samples_binary):
+        samples_int16 = utils.bytesToInt16List(samples_binary)
+        return samples_int16 / 32768
+
+    def __init__(self, sampleRate=None, numSamples=None, wavFile=None, rawFile=None):
         if wavFile != None:
             self.readWavFile(wavFile)
+        elif rawFile != None:
+            self.readRawFile(rawFile, sampleRate)
         else:
             self.sampleRate = sampleRate
             self.numSamples = numSamples
@@ -74,13 +81,20 @@ class SoundBuilder:
     def showPlots(self):
         plt.show()
 
+    def readRawFile(self, fileName, sampleRate):
+        self.sampleRate = sampleRate
+        f = open(fileName, "rb")
+        samples_binary = f.read()
+        f.close()
+        self.samples_float = self.binarySamplesToFloats(samples_binary)
+        self.numSamples = len(self.samples_float)
+
     def readWavFile(self, fileName):
         wav = wave.open(fileName)
         self.sampleRate = wav.getframerate()
         self.numSamples = wav.getnframes()
         samples_binary = wav.readframes(self.numSamples)
-        samples_int16 = utils.bytesToInt16List(samples_binary)
-        self.samples_float = samples_int16 / 32768
+        self.samples_float = self.binarySamplesToFloats(samples_binary)
 
     def writeWav(self, fileName):
         self.imposeMinimum(-1)

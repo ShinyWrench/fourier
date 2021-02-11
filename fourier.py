@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from soundBuilder import SoundBuilder
-import pdb
 from random import randint, random
 
 
@@ -41,8 +40,17 @@ def doFFTAndPlots(soundBuilder):
 # sbGenerated.writeWav("generated.wav")
 # doFFTAndPlots(sbGenerated)
 
-doFFTAndPlots(
-    SoundBuilder(wavFile="classical_mono.wav")
-)
+# doFFTAndPlots(
+#     SoundBuilder(wavFile="classical_mono.wav")
+# )
+
+sb = SoundBuilder(rawFile="21-02-11_17-17-02.raw", sampleRate=8000)
+sb.writeWav("didItWork.wav")
+
+# sb = SoundBuilder(rawFile="21-02-11_17-17-02.raw", sampleRate=8000)
+# WINDOW_SIZE_SECONDS = 0.1
+# for t_seconds in range(54.2, 54.7, WINDOW_SIZE_SECONDS):
+#     doFFTAndPlots(sb.getClip(startTime=t_seconds,
+#                              endTime=t_seconds + WINDOW_SIZE_SECONDS))
 
 # fourier.getConstituentFrequencies(soundBuilder.getSamples(), sampleRate=128000)
