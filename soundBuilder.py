@@ -2,6 +2,7 @@ import numpy as np
 import wave
 import struct
 import matplotlib.pyplot as plt
+import scipy.signal as signal
 
 
 class SoundBuilder:
@@ -33,9 +34,9 @@ class SoundBuilder:
             self.samples_float
         )
 
+    # TODO: abstract FFT result-handling here and in getFreqPeaks
     def plotFFT(self):
         fftResult = np.fft.fft(self.samples_float)
-        print("len(fftResult) = %s" % len(fftResult))
         plt.figure()
         plt.xlabel("Frequency")
         plt.ylabel("Magnitude")
@@ -44,6 +45,20 @@ class SoundBuilder:
         magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
         magnitudes[1:] = 2 * magnitudes[1:]
         plt.plot(frequencyVector, np.abs(magnitudes))
+
+    def getFrequencyPeaksFromFFT(self, magnitudeThreshold=0.001):
+        fftResult = np.fft.fft(self.samples_float)
+        frequencyVector = self.sampleRate * \
+            np.arange(self.numSamples / 2) / self.numSamples
+        magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
+        magnitudes[1:] = 2 * magnitudes[1:]
+        magnitudes = np.abs(magnitudes)
+        return [
+            {
+                "frequency": frequencyVector[peakIndex],
+                "magnitude": magnitudes[peakIndex]
+            } for peakIndex in signal.find_peaks(magnitudes)[0]
+        ]
 
     def showPlots(self):
         plt.show()
