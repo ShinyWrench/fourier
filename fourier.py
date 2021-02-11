@@ -23,26 +23,23 @@ def buildSoundWithNSineWaves(numWaves):
     return soundBuilder
 
 
+def doFFTAndPlots(soundBuilder):
+    soundBuilder.plotAmplitudeVsTime()
+    soundBuilder.plotFFT()
+
+    foundPeaks = soundBuilder.getFrequencyPeaksFromFFT()
+    print("\nfrequency  |  magnitude")
+    print("-----------------------")
+    for peak in foundPeaks:
+        print(
+            f"{str(peak['frequency']).rjust(7)} Hz  |  {peak['magnitude']:.4f}")
+
+    soundBuilder.showPlots()
+
+
 sbGenerated = buildSoundWithNSineWaves(10)
 sbGenerated.writeWav("generated.wav")
+doFFTAndPlots(sbGenerated)
 
-sbFromFile = SoundBuilder(wavFile="generated.wav")
 
-SoundBuilder.compare(sbGenerated, sbGenerated)
-
-sbFromFile.writeWav('generated_copy.wav')
-
-# soundBuilder.plotAmplitudeVsTime()
-# soundBuilder.plotFFT()
-# soundBuilder.writeWav()
-
-# foundPeaks = soundBuilder.getFrequencyPeaksFromFFT()
-# print("\nfrequency  |  magnitude")
-# print("-----------------------")
-# for peak in foundPeaks:
-#     print(
-#         f"{str(peak['frequency']).rjust(7)} Hz  |  {peak['magnitude']:.4f}")
-
-# soundBuilder.showPlots()
-
-# fourier.getConstituentFrequencies(SoundBuilder.getSamples(), sampleRate=128000)
+# fourier.getConstituentFrequencies(soundBuilder.getSamples(), sampleRate=128000)
