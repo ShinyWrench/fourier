@@ -22,9 +22,9 @@ def buildSoundWithNSineWaves(numWaves):
     return soundBuilder
 
 
-def doFFTAndPlots(soundBuilder):
-    soundBuilder.plotAmplitudeVsTime()
-    soundBuilder.plotFFT()
+def doFFTAndPlots(soundBuilder, show=True, titlePrefix=""):
+    soundBuilder.plotAmplitudeVsTime(titlePrefix)
+    soundBuilder.plotFFT(titlePrefix)
 
     foundPeaks = soundBuilder.getFrequencyPeaksFromFFT()
     print("\nfrequency  |  magnitude")
@@ -33,7 +33,8 @@ def doFFTAndPlots(soundBuilder):
         print(
             f"{str(peak['frequency']).rjust(7)} Hz  |  {peak['magnitude']:.4f}")
 
-    soundBuilder.showPlots()
+    if show == True:
+        soundBuilder.showPlots()
 
 
 # sbGenerated = buildSoundWithNSineWaves(10)
@@ -45,12 +46,16 @@ def doFFTAndPlots(soundBuilder):
 # )
 
 sb = SoundBuilder(rawFile="21-02-11_17-17-02.raw", sampleRate=8000)
-sb.writeWav("didItWork.wav")
-
-# sb = SoundBuilder(rawFile="21-02-11_17-17-02.raw", sampleRate=8000)
-# WINDOW_SIZE_SECONDS = 0.1
-# for t_seconds in range(54.2, 54.7, WINDOW_SIZE_SECONDS):
-#     doFFTAndPlots(sb.getClip(startTime=t_seconds,
-#                              endTime=t_seconds + WINDOW_SIZE_SECONDS))
+WINDOW_SIZE_SECONDS = 0.1
+t_seconds = 54.2
+while t_seconds < 54.7:
+    doFFTAndPlots(
+        sb.getClip(startTime=t_seconds,
+                   endTime=t_seconds + WINDOW_SIZE_SECONDS),
+        show=False,
+        titlePrefix=f"{t_seconds:.2f} sec. to {t_seconds + WINDOW_SIZE_SECONDS:.2f} sec."
+    )
+    t_seconds += WINDOW_SIZE_SECONDS
+sb.showPlots()
 
 # fourier.getConstituentFrequencies(soundBuilder.getSamples(), sampleRate=128000)

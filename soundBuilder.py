@@ -20,15 +20,29 @@ class SoundBuilder:
         samples_int16 = utils.bytesToInt16List(samples_binary)
         return samples_int16 / 32768
 
-    def __init__(self, sampleRate=None, numSamples=None, wavFile=None, rawFile=None):
+    def __init__(self, sampleRate=None, numSamples=None, floatSamples=None, wavFile=None, rawFile=None):
         if wavFile != None:
             self.readWavFile(wavFile)
         elif rawFile != None:
             self.readRawFile(rawFile, sampleRate)
+        elif floatSamples is not None:
+            self.sampleRate = sampleRate
+            self.samples_float = floatSamples[:]
+            self.numSamples = len(self.samples_float)
         else:
             self.sampleRate = sampleRate
             self.numSamples = numSamples
             self.samples_float = np.zeros(self.numSamples)
+
+    def getClip(self, startTime=None, endTime=None):
+        startSampleIndex = 0 if startTime == None else int(
+            startTime * self.sampleRate)
+        endSampleIndex = self.numSamples if endTime == None else int(
+            endTime*self.sampleRate)
+        return SoundBuilder(
+            sampleRate=self.sampleRate,
+            floatSamples=self.samples_float[startSampleIndex:endSampleIndex]
+        )
 
     def getSamples(self):
         return self.samples_float[:]
@@ -38,13 +52,14 @@ class SoundBuilder:
         self.samples_float += amplitude * \
             np.sin(2 * np.pi * frequency * timeVector)
 
-    def plotAmplitudeVsTime(self):
+    def plotAmplitudeVsTime(self, titlePrefix=""):
 
         def getTimeAxisData(sampleRate, numSamples):
             durationSeconds = numSamples / sampleRate
             return np.linspace(0, durationSeconds, num=numSamples, endpoint=False)
 
-        plt.figure(1)
+        plt.figure()
+        plt.title(titlePrefix)
         plt.xlabel("Time")
         plt.ylabel("Amplitude")
         plt.plot(
@@ -53,13 +68,14 @@ class SoundBuilder:
         )
 
     # TODO: abstract FFT result-handling here and in getFreqPeaks
-    def plotFFT(self):
+    def plotFFT(self, titlePrefix=""):
         fftResult = np.fft.fft(self.samples_float)
         frequencyVector = self.sampleRate * \
             np.arange(self.numSamples // 2) / self.numSamples
         magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
         magnitudes[1:] = 2 * magnitudes[1:]
         plt.figure()
+        plt.title(titlePrefix)
         plt.xlabel("Frequency")
         plt.ylabel("Magnitude")
         plt.plot(frequencyVector, np.abs(magnitudes))
