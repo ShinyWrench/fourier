@@ -37,6 +37,8 @@ def doFFTAndPlots(soundBuilder, show=True, titlePrefix=""):
         soundBuilder.showPlots()
 
 
+# doFFTAndPlots(buildDialTone())
+
 # sbGenerated = buildSoundWithNSineWaves(10)
 # sbGenerated.writeWav("generated.wav")
 # doFFTAndPlots(sbGenerated)
