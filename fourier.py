@@ -4,17 +4,12 @@ from soundBuilder import SoundBuilder
 import pdb
 from random import randint, random
 
-# soundBuilder = SoundBuilder(sampleRate=44100, numSamples=3 * 44100)
 
-
-# soundBuilder.addSineWave(120, 0.5)
-# soundBuilder.addSineWave(800, 0.2)
-# soundBuilder.addSineWave(8000, 0.08)
-
-# soundBuilder.addSineWave(440, 0.5)
-# soundBuilder.addSineWave(350, 0.5)
-
-# soundBuilder.addSineWave(440, 1)
+def buildDialTone():
+    soundBuilder = SoundBuilder(sampleRate=44100, numSamples=3 * 44100)
+    soundBuilder.addSineWave(440, 0.5)
+    soundBuilder.addSineWave(350, 0.5)
+    return soundBuilder
 
 
 def buildSoundWithNSineWaves(numWaves):
@@ -28,18 +23,26 @@ def buildSoundWithNSineWaves(numWaves):
     return soundBuilder
 
 
-soundBuilder = buildSoundWithNSineWaves(10)
-soundBuilder.writeWav()
-soundBuilder.plotAmplitudeVsTime()
-soundBuilder.plotFFT()
+sbGenerated = buildSoundWithNSineWaves(10)
+sbGenerated.writeWav("generated.wav")
 
-foundPeaks = soundBuilder.getFrequencyPeaksFromFFT()
-print("\nfrequency  |  magnitude")
-print("-----------------------")
-for peak in foundPeaks:
-    print(
-        f"{str(peak['frequency']).rjust(7)} Hz  |  {peak['magnitude']:.4f}")
+sbFromFile = SoundBuilder(wavFile="generated.wav")
 
-soundBuilder.showPlots()
+SoundBuilder.compare(sbGenerated, sbGenerated)
+
+sbFromFile.writeWav('generated_copy.wav')
+
+# soundBuilder.plotAmplitudeVsTime()
+# soundBuilder.plotFFT()
+# soundBuilder.writeWav()
+
+# foundPeaks = soundBuilder.getFrequencyPeaksFromFFT()
+# print("\nfrequency  |  magnitude")
+# print("-----------------------")
+# for peak in foundPeaks:
+#     print(
+#         f"{str(peak['frequency']).rjust(7)} Hz  |  {peak['magnitude']:.4f}")
+
+# soundBuilder.showPlots()
 
 # fourier.getConstituentFrequencies(SoundBuilder.getSamples(), sampleRate=128000)

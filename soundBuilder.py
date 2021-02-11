@@ -2,15 +2,26 @@ import numpy as np
 import wave
 import struct
 import matplotlib.pyplot as plt
-import scipy.signal as signal
+import scipy.signal
+import utils
 
 
 class SoundBuilder:
 
-    def __init__(self, sampleRate, numSamples):
-        self.sampleRate = sampleRate
-        self.numSamples = numSamples
-        self.samples_float = np.zeros(self.numSamples)
+    @staticmethod
+    def compare(sbA, sbB):
+        print(f"sbA: {sbA.numSamples} samples at {sbA.sampleRate} samples/sec")
+        print(f"sbB: {sbB.numSamples} samples at {sbB.sampleRate} samples/sec")
+        print(
+            f"average error: {np.average(sbA.getSamples() - sbB.getSamples())}")
+
+    def __init__(self, sampleRate=None, numSamples=None, wavFile=None):
+        if wavFile != None:
+            self.readWavFile(wavFile)
+        else:
+            self.sampleRate = sampleRate
+            self.numSamples = numSamples
+            self.samples_float = np.zeros(self.numSamples)
 
     def getSamples(self):
         return self.samples_float[:]
@@ -57,17 +68,24 @@ class SoundBuilder:
             {
                 "frequency": frequencyVector[peakIndex],
                 "magnitude": magnitudes[peakIndex]
-            } for peakIndex in signal.find_peaks(magnitudes)[0]
+            } for peakIndex in scipy.signal.find_peaks(magnitudes)[0]
         ]
 
     def showPlots(self):
         plt.show()
 
-    # TODO: Take file-name arg
-    def writeWav(self):
+    def readWavFile(self, fileName):
+        wav = wave.open(fileName)
+        self.sampleRate = wav.getframerate()
+        self.numSamples = wav.getnframes()
+        samples_binary = wav.readframes(self.numSamples)
+        samples_int16 = utils.bytesToInt16List(samples_binary)
+        self.samples_float = samples_int16 / 32768
+
+    def writeWav(self, fileName):
         self.imposeMinimum(-1)
         self.imposeMaximum(1)
-        wav = wave.open('test.wav', 'w')
+        wav = wave.open(fileName, 'w')
         wav.setnchannels(1)
         wav.setsampwidth(2)
         wav.setframerate(self.sampleRate)
