@@ -5,7 +5,6 @@ import pdb
 from random import randint, random
 
 # soundBuilder = SoundBuilder(sampleRate=44100, numSamples=3 * 44100)
-soundBuilder = SoundBuilder(sampleRate=44100, numSamples=44100//2)
 
 
 # soundBuilder.addSineWave(120, 0.5)
@@ -17,13 +16,19 @@ soundBuilder = SoundBuilder(sampleRate=44100, numSamples=44100//2)
 
 # soundBuilder.addSineWave(440, 1)
 
-NUM_WAVES = 10
-for i in range(NUM_WAVES):
-    frequency = randint(200, 2400)
-    amplitude = random() / NUM_WAVES
-    print(f"Add sine wave: {str(frequency).rjust(5)} Hz  {amplitude:.4f} mag.")
-    soundBuilder.addSineWave(frequency, amplitude)
 
+def buildSoundWithNSineWaves(numWaves):
+    soundBuilder = SoundBuilder(sampleRate=44100, numSamples=44100//2)
+    for i in range(numWaves):
+        frequency = randint(200, 2400)
+        amplitude = random() / numWaves
+        print(
+            f"Add sine wave: {str(frequency).rjust(5)} Hz  {amplitude:.4f} mag.")
+        soundBuilder.addSineWave(frequency, amplitude)
+    return soundBuilder
+
+
+soundBuilder = buildSoundWithNSineWaves(10)
 soundBuilder.writeWav()
 soundBuilder.plotAmplitudeVsTime()
 soundBuilder.plotFFT()
