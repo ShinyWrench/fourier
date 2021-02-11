@@ -15,14 +15,9 @@ class SoundBuilder:
         return self.samples_float[:]
 
     def addSineWave(self, frequency, amplitude):
-        # Spread this out to 3 or 4 lines
-        # TODO: Test this:
-        # timeVector = np.arange(self.numSamples) / self.sampleRate
-        # self.samples_float += amplitude * \
-        #     np.sin(2 * np.pi * frequency * timeVector)
+        timeVector = np.arange(self.numSamples) / self.sampleRate
         self.samples_float += amplitude * \
-            np.sin(2 * np.pi * frequency / self.sampleRate *
-                   np.arange(self.numSamples))
+            np.sin(2 * np.pi * frequency * timeVector)
 
     def plotAmplitudeVsTime(self):
 
