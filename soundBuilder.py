@@ -76,11 +76,16 @@ class SoundBuilder:
     def plotAllFFTProducts(self, titlePrefix=""):
 
         fftResult = np.fft.fft(self.samples_float)
-        self._plotFFTRawResult(fftResult)
 
-        frequencyVector, powerVector = self._getNormalizedFrequencyPlotDataFromFFTResult(
+        # Plot (absolute values of) raw result vs. sample indices
+        sampleIndices, rawFFTResult = self._getRawPlotDataFromFFTResult(
             fftResult)
-        self._plotFFTNormalizedFrequencies(frequencyVector, powerVector)
+        self._plotFFTRawResult(sampleIndices, rawFFTResult)
+
+        # Plot (absolute values of) raw result vs. normalized frequencies
+        frequencyVector, rawFFTResult = self._getNormalizedFrequencyPlotDataFromFFTResult(
+            fftResult)
+        self._plotFFTNormalizedFrequencies(frequencyVector, rawFFTResult)
 
         # TODO: Plot more intermediate products
         #       Plot only the most interesting, conceptually critical representations
@@ -140,17 +145,36 @@ class SoundBuilder:
 
         wav.close()
 
-    def _plotFFTRawResult(self, fftResult):
-        # TODO
-        pass
+    def fft(self):
+        return np.fft.fft(self.samples_float)
+
+    def _getRawPlotDataFromFFTResult(self, fftResult):
+        return np.arange(len(fftResult)), np.abs(fftResult)
+
+    def _plotFFTRawResult(self, sampleIndices, rawFFTResult, titlePrefix=""):
+        plt.figure()
+        plt.title(
+            f"{titlePrefix}{' -- ' if len(titlePrefix) > 0 else ''}FFT Raw Result")
+        plt.xlabel("Sample Index")
+        plt.ylabel("FFT Result")
+        plt.plot(
+            sampleIndices,
+            np.abs(rawFFTResult)
+        )
 
     def _getNormalizedFrequencyPlotDataFromFFTResult(self, fftResult):
-        # TODO
-        return [], []
+        return np.arange(len(fftResult)) / len(fftResult), np.abs(fftResult)
 
-    def _plotFFTNormalizedFrequencies(self, frequencyVector, powerVector):
-        # TODO
-        pass
+    def _plotFFTNormalizedFrequencies(self, normalizedFrequencies, rawFFTResult, titlePrefix=""):
+        plt.figure()
+        plt.title(
+            f"{titlePrefix}{' -- ' if len(titlePrefix) > 0 else ''}FFT Raw Result (vs. normalized frequencies)")
+        plt.xlabel("Frequency")
+        plt.ylabel("FFT Result")
+        plt.plot(
+            normalizedFrequencies,
+            np.abs(rawFFTResult)
+        )
 
     def _getMagnitudePlotDataFromFFTResult(self, fftResult):
         frequencyVector = self.sampleRate * \
@@ -176,6 +200,7 @@ class SoundBuilder:
     # TODO: Figure out how logic in this function (below TODOs) works and why I should do it
     #           https://www.gaussianwaves.com/2020/01/how-to-plot-fft-in-python-fft-of-basic-signals-sine-and-cosine-waves/
     #       Plot other steps in guide / FFT-post processing steps
+    #       Experiment with sine wave phase
     # TODO: Handle spike diffusion (important for choosing processing parameters)
     #           https://stackoverflow.com/a/62724581/4443890
     # TODO: Learn how to use filters
