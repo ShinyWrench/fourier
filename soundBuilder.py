@@ -67,31 +67,23 @@ class SoundBuilder:
             self.samples_float
         )
 
-    # TODO: abstract FFT result-handling here and in getFreqPeaks
     def plotFFT(self, titlePrefix=""):
         fftResult = np.fft.fft(self.samples_float)
-        frequencyVector = self.sampleRate * \
-            np.arange(self.numSamples // 2) / self.numSamples
-        magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
-        magnitudes[1:] = 2 * magnitudes[1:]
+        frequencyVector, magnitudes = self._getPlotDataFromFFTResult(fftResult)
         plt.figure()
         plt.title(titlePrefix)
         plt.xlabel("Frequency")
         plt.ylabel("Magnitude")
-        plt.plot(frequencyVector, np.abs(magnitudes))
+        plt.plot(frequencyVector, magnitudes)
 
     def getFrequencyPeaksFromFFT(self, magnitudeThreshold=0.001):
         fftResult = np.fft.fft(self.samples_float)
-        frequencyVector = self.sampleRate * \
-            np.arange(self.numSamples / 2) / self.numSamples
-        magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
-        magnitudes[1:] = 2 * magnitudes[1:]
-        magnitudes = np.abs(magnitudes)
+        frequencyVector, magnitudes = self._getPlotDataFromFFTResult(fftResult)
         return [
             {
                 "frequency": frequencyVector[peakIndex],
                 "magnitude": magnitudes[peakIndex]
-            } for peakIndex in scipy.signal.find_peaks(magnitudes)[0]
+            } for peakIndex in scipy.signal.find_peaks(magnitudes, threshold=0.0001)[0]
         ]
 
     def showPlots(self):
@@ -113,8 +105,8 @@ class SoundBuilder:
         self.samples_float = self.binarySamplesToFloats(samples_binary)
 
     def writeWav(self, fileName):
-        self.imposeMinimum(-1)
-        self.imposeMaximum(1)
+        self._imposeMinimum(-1)
+        self._imposeMaximum(1)
         wav = wave.open(fileName, 'w')
         wav.setnchannels(1)
         wav.setsampwidth(2)
@@ -133,8 +125,16 @@ class SoundBuilder:
 
         wav.close()
 
-    def imposeMinimum(self, minimumSampleValue):
+    def _imposeMinimum(self, minimumSampleValue):
         self.samples_float = np.maximum(self.samples_float, minimumSampleValue)
 
-    def imposeMaximum(self, maximumSampleValue):
+    def _imposeMaximum(self, maximumSampleValue):
         self.samples_float = np.minimum(self.samples_float, maximumSampleValue)
+
+    def _getPlotDataFromFFTResult(self, fftResult):
+        frequencyVector = self.sampleRate * \
+            np.arange(self.numSamples // 2) / self.numSamples
+        magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
+        magnitudes[1:] = 2 * magnitudes[1:]
+        magnitudes = np.abs(magnitudes)
+        return frequencyVector, magnitudes

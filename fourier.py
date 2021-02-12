@@ -12,7 +12,7 @@ def buildDialTone():
 
 
 def buildSoundWithNSineWaves(numWaves):
-    soundBuilder = SoundBuilder(sampleRate=44100, numSamples=44100//2)
+    soundBuilder = SoundBuilder(sampleRate=44100, numSamples=44100*2)
     for i in range(numWaves):
         frequency = randint(200, 2400)
         amplitude = random() / numWaves
@@ -23,7 +23,7 @@ def buildSoundWithNSineWaves(numWaves):
 
 
 def doFFTAndPlots(soundBuilder, show=True, titlePrefix=""):
-    soundBuilder.plotAmplitudeVsTime(titlePrefix)
+    # soundBuilder.plotAmplitudeVsTime(titlePrefix)
     soundBuilder.plotFFT(titlePrefix)
 
     foundPeaks = soundBuilder.getFrequencyPeaksFromFFT()
@@ -49,8 +49,8 @@ def doFFTAndPlots(soundBuilder, show=True, titlePrefix=""):
 
 sb = SoundBuilder(rawFile="21-02-11_17-17-02.raw", sampleRate=8000)
 WINDOW_SIZE_SECONDS = 0.1
-t_seconds = 54.2
-while t_seconds < 54.7:
+t_seconds = 56.5
+while t_seconds < 57.8:
     doFFTAndPlots(
         sb.getClip(startTime=t_seconds,
                    endTime=t_seconds + WINDOW_SIZE_SECONDS),
