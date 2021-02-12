@@ -69,16 +69,31 @@ class SoundBuilder:
 
     def plotFFT(self, titlePrefix=""):
         fftResult = np.fft.fft(self.samples_float)
-        frequencyVector, magnitudes = self._getPlotDataFromFFTResult(fftResult)
-        plt.figure()
-        plt.title(titlePrefix)
-        plt.xlabel("Frequency")
-        plt.ylabel("Magnitude")
-        plt.plot(frequencyVector, magnitudes)
+        frequencyVector, magnitudes = self._getMagnitudePlotDataFromFFTResult(
+            fftResult)
+        self._plotFFTMagnitudes(frequencyVector, magnitudes)
+
+    def plotAllFFTProducts(self, titlePrefix=""):
+
+        fftResult = np.fft.fft(self.samples_float)
+        self._plotFFTRawResult(fftResult)
+
+        frequencyVector, powerVector = self._getNormalizedFrequencyPlotDataFromFFTResult(
+            fftResult)
+        self._plotFFTNormalizedFrequencies(frequencyVector, powerVector)
+
+        # TODO: Plot more intermediate products
+        #       Plot only the most interesting, conceptually critical representations
+        #           of FFT results (power, energy, normalized, full, half, absolute, etc.)
+
+        frequencyVector, magnitudes = self._getMagnitudePlotDataFromFFTResult(
+            fftResult)
+        self._plotFFTMagnitudes(frequencyVector, magnitudes)
 
     def getFrequencyPeaksFromFFT(self, magnitudeThreshold=0.001):
         fftResult = np.fft.fft(self.samples_float)
-        frequencyVector, magnitudes = self._getPlotDataFromFFTResult(fftResult)
+        frequencyVector, magnitudes = self._getMagnitudePlotDataFromFFTResult(
+            fftResult)
         return [
             {
                 "frequency": frequencyVector[peakIndex],
@@ -125,16 +140,67 @@ class SoundBuilder:
 
         wav.close()
 
+    def _plotFFTRawResult(self, fftResult):
+        # TODO
+        pass
+
+    def _getNormalizedFrequencyPlotDataFromFFTResult(self, fftResult):
+        # TODO
+        return [], []
+
+    def _plotFFTNormalizedFrequencies(self, frequencyVector, powerVector):
+        # TODO
+        pass
+
+    def _getMagnitudePlotDataFromFFTResult(self, fftResult):
+        frequencyVector = self.sampleRate * \
+            np.arange(self.numSamples // 2) / self.numSamples
+        magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
+        magnitudes[1:] = 2 * magnitudes[1:]
+        magnitudes = np.abs(magnitudes)
+        return frequencyVector, magnitudes
+
+    def _plotFFTMagnitudes(self, frequencyVector, magnitudes, titlePrefix=""):
+        plt.figure()
+        plt.title(titlePrefix)
+        plt.xlabel("Frequency")
+        plt.ylabel("Magnitude")
+        plt.plot(frequencyVector, magnitudes)
+
     def _imposeMinimum(self, minimumSampleValue):
         self.samples_float = np.maximum(self.samples_float, minimumSampleValue)
 
     def _imposeMaximum(self, maximumSampleValue):
         self.samples_float = np.minimum(self.samples_float, maximumSampleValue)
 
-    def _getPlotDataFromFFTResult(self, fftResult):
+    # TODO: Figure out how logic in this function (below TODOs) works and why I should do it
+    #           https://www.gaussianwaves.com/2020/01/how-to-plot-fft-in-python-fft-of-basic-signals-sine-and-cosine-waves/
+    #       Plot other steps in guide / FFT-post processing steps
+    # TODO: Handle spike diffusion (important for choosing processing parameters)
+    #           https://stackoverflow.com/a/62724581/4443890
+    # TODO: Learn how to use filters
+    #           https://scipy-lectures.org/intro/scipy/auto_examples/plot_fftpack.html
+    #       Record something with noise in background (low or high) and filter it out
+    def _getPlotDataFromFFTResultAnotherWay(self, fftResult):
+
+        # TODO: Figure this thing out
         frequencyVector = self.sampleRate * \
             np.arange(self.numSamples // 2) / self.numSamples
-        magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
-        magnitudes[1:] = 2 * magnitudes[1:]
+
+        # TODO: Figure out why I take the first half
+        #       If I took the second half, would I do something else different?
+        magnitudes = fftResult[:self.numSamples // 2]
+
+        # TODO: Find the 0th array term that has all of the energy or sum of amplitudes or something
+
+        # TODO: What exactly are these values before and after dividing by numSamples?
+        #       Figure out power vs. energy vs. acceleration vs. magnitude/amplitude
+        # magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
+
+        # TODO: Does this re-include the energy/power I discarded when I split array in half?
+        # magnitudes[1:] = 2 * magnitudes[1:]
+
+        # np.abs gives magnitude of complex number: sqrt(real**2 + imag**2)
         magnitudes = np.abs(magnitudes)
+
         return frequencyVector, magnitudes
