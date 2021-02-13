@@ -8,7 +8,7 @@ def buildDialTone():
     SAMPLE_RATE = 8000
     # soundBuilder = SoundBuilder(sampleRate=44100, numSamples=3 * 44100)
     soundBuilder = SoundBuilder(
-        sampleRate=SAMPLE_RATE, numSamples=3*SAMPLE_RATE)
+        sampleRate=SAMPLE_RATE, numSamples=5*SAMPLE_RATE)
     soundBuilder.addSineWave(440, 0.5)
     soundBuilder.addSineWave(350, 0.5)
     return soundBuilder
@@ -50,9 +50,8 @@ def doFFTAndAllPlots(soundBuilder, show=True, titlePrefix=""):
         soundBuilder.showPlots()
 
 
-def plotFFT(soundBuilder, show=True):
-    # soundBuilder.plotAmplitudeVsTime(titlePrefix)
-    soundBuilder.plotFFT()
+def plotBestFFTProducts(soundBuilder, show=True):
+    soundBuilder.plotBestFFTProducts()
 
     foundPeaks = soundBuilder.getFrequencyPeaksFromFFT()
     print("\n    Freq.   |  Ampl.  ")
@@ -69,7 +68,9 @@ def plotFFT(soundBuilder, show=True):
 # doFFTAndAllPlots(buildSoundWithNSineWaves(10))
 
 
-plotFFT(buildToneForSpikeDiffusionTest())
+# plotBestFFTProducts(buildDialTone())
+
+plotBestFFTProducts(buildSoundWithNSineWaves(10))
 
 # doFFTAndAllPlots(
 #     SoundBuilder(wavFile="classical_mono.wav")

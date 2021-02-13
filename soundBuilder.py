@@ -82,23 +82,6 @@ class SoundBuilder:
             self.samples_float
         )
 
-    def plotFFT(self, titlePrefix=""):
-
-        fftResult = self.fft()
-
-        sampleIndices = np.arange(self.numSamples)
-        frequencies = self.sampleRate / self.numSamples * \
-            sampleIndices[:self.numSamples // 2]
-
-        amplitudes = 2 * \
-            np.abs(fftResult[:self.numSamples // 2]) / self.numSamples
-
-        plt.figure()
-        plt.title("Amplitude vs. Frequency")
-        plt.xlabel("Frequency")
-        plt.ylabel("Amplitude")
-        plt.plot(frequencies, amplitudes)
-
     def plotAllFFTProducts(self, titlePrefix=""):
 
         fftResult = self.fftShifted()
@@ -152,6 +135,43 @@ class SoundBuilder:
             xlabel="Frequency",
             ylabel="Amplitude"
         )
+
+    # The operations used to generate these products are the best I've found so far
+    def plotBestFFTProducts(self, titlePrefix=""):
+        fftResult = np.fft.fft(self.samples_float)
+
+        timeVector = np.arange(self.numSamples) / self.sampleRate
+        self._plotNewFigure(
+            xVector=timeVector,
+            yVector=self.samples_float,
+            title="Signal Amplitude vs. Time",
+            xlabel="Time (seconds)",
+            ylabel="Amplitude"
+        )
+
+        frequencies = np.fft.fftfreq(self.numSamples, 1 / self.sampleRate)
+        fftAmplitudes = np.abs(fftResult / len(fftResult))
+
+        postiveFrequenciesMask = np.where(frequencies > 0)
+        positiveFrequencies = frequencies[postiveFrequenciesMask]
+        # Multiply positive-frequency amplitudes by 2 to show energy
+        #     from symmetric negative frequencies
+        adjustedAmplitudes = 2 * fftAmplitudes[postiveFrequenciesMask]
+
+        self._plotNewFigure(
+            xVector=positiveFrequencies,
+            yVector=adjustedAmplitudes,
+            title="Amplitude vs. Absolute Frequency",
+            xlabel="Frequency (Hz)",
+            ylabel="Amplitude"
+        )
+
+        # Why does this increase when increasing numSamples? Doesn't power measure
+        #     instantaneous instensity of signal (band) rather than describing a
+        #     summed quantity?
+        # power = np.abs(fftResult) ** 2
+
+        # TODO: Plot power vs. absolute frequencies
 
     def getFrequencyPeaksFromFFT(self, magnitudeThreshold=0.001):
         fftResult = np.abs(self.fft())
@@ -226,11 +246,9 @@ class SoundBuilder:
     def _imposeMaximum(self, maximumSampleValue):
         self.samples_float = np.minimum(self.samples_float, maximumSampleValue)
 
-    # TODO: Handle spike diffusion (important for choosing processing parameters)
-    #           https://stackoverflow.com/a/62724581/4443890
-    # TODO: Experiment with wave phase
-    # TODO: Plot power and any other interesting, conceptually critical representations
-    #           of FFT results (energy, acceleration, etc.)
     # TODO: Learn how to use filters
     #           https://scipy-lectures.org/intro/scipy/auto_examples/plot_fftpack.html
     #       Record something with noise in background (low or high) and filter it out
+    # TODO: Experiment with wave phase
+    # TODO: Plot power and any other interesting, conceptually critical representations
+    #           of FFT results (energy, acceleration, etc.)
