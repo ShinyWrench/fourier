@@ -136,9 +136,6 @@ class SoundBuilder:
             ylabel="Amplitude"
         )
 
-        # TODO: Plot power and any other interesting, conceptually critical representations
-        #           of FFT results (energy, acceleration, etc.)
-
     def getFrequencyPeaksFromFFT(self, magnitudeThreshold=0.001):
         fftResult = np.abs(self.fft())
         amplitudes = np.abs(fftResult / len(fftResult))
@@ -212,35 +209,11 @@ class SoundBuilder:
     def _imposeMaximum(self, maximumSampleValue):
         self.samples_float = np.minimum(self.samples_float, maximumSampleValue)
 
-    # TODO: Figure out how logic in this function (below TODOs) works and why I should do it
-    #           https://www.gaussianwaves.com/2020/01/how-to-plot-fft-in-python-fft-of-basic-signals-sine-and-cosine-waves/
-    #       Plot other steps in guide / FFT-post processing steps
-    #       Experiment with sine wave phase
+    # TODO: Experiment with wave phase
+    # TODO: Plot power and any other interesting, conceptually critical representations
+    #           of FFT results (energy, acceleration, etc.)
     # TODO: Handle spike diffusion (important for choosing processing parameters)
     #           https://stackoverflow.com/a/62724581/4443890
     # TODO: Learn how to use filters
     #           https://scipy-lectures.org/intro/scipy/auto_examples/plot_fftpack.html
     #       Record something with noise in background (low or high) and filter it out
-    def _getPlotDataFromFFTResultAnotherWay(self, fftResult):
-
-        # TODO: Figure this thing out
-        frequencyVector = self.sampleRate * \
-            np.arange(self.numSamples // 2) / self.numSamples
-
-        # TODO: Figure out why I take the first half
-        #       If I took the second half, would I do something else different?
-        magnitudes = fftResult[:self.numSamples // 2]
-
-        # TODO: Find the 0th array term that has all of the energy or sum of amplitudes or something
-
-        # TODO: What exactly are these values before and after dividing by numSamples?
-        #       Figure out power vs. energy vs. acceleration vs. magnitude/amplitude
-        # magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
-
-        # TODO: Does this re-include the energy/power I discarded when I split array in half?
-        # magnitudes[1:] = 2 * magnitudes[1:]
-
-        # np.abs gives magnitude of complex number: sqrt(real**2 + imag**2)
-        magnitudes = np.abs(magnitudes)
-
-        return frequencyVector, magnitudes
