@@ -144,7 +144,7 @@ class SoundBuilder:
         self._plotNewFigure(
             xVector=timeVector,
             yVector=self.samples_float,
-            title="Signal Amplitude vs. Time",
+            title=f"{titlePrefix}{' -- ' if len(titlePrefix) > 0 else ''}Signal Amplitude vs. Time",
             xlabel="Time (seconds)",
             ylabel="Amplitude"
         )
@@ -161,7 +161,7 @@ class SoundBuilder:
         self._plotNewFigure(
             xVector=positiveFrequencies,
             yVector=adjustedAmplitudes,
-            title="Amplitude vs. Absolute Frequency",
+            title=f"{titlePrefix}{' -- ' if len(titlePrefix) > 0 else ''}Amplitude vs. Absolute Frequency",
             xlabel="Frequency (Hz)",
             ylabel="Amplitude"
         )
@@ -172,6 +172,24 @@ class SoundBuilder:
         # power = np.abs(fftResult) ** 2
 
         # TODO: Plot power vs. absolute frequencies
+
+    # TODO: DRY
+    def lowPassFilter(self, threshold):
+        frequencies = np.fft.rfftfreq(self.numSamples, 1 / self.sampleRate)
+        signalRealFFT = np.fft.rfft(self.samples_float)
+        signalRealFFT[np.abs(frequencies) > threshold] = 0
+        self.samples_float = np.fft.irfft(signalRealFFT)
+
+    # TODO: DRY
+    def highPassFilter(self, threshold):
+        frequencies = np.fft.rfftfreq(self.numSamples, 1 / self.sampleRate)
+        signalRealFFT = np.fft.rfft(self.samples_float)
+        signalRealFFT[np.abs(frequencies) < threshold] = 0
+        self.samples_float = np.fft.irfft(signalRealFFT)
+
+    def bandPassFilter(self, highPassThreshold, lowPassThreshold):
+        self.highPassFilter(highPassThreshold)
+        self.lowPassFilter(lowPassThreshold)
 
     def getFrequencyPeaksFromFFT(self, magnitudeThreshold=0.001):
         fftResult = np.abs(self.fft())

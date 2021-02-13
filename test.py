@@ -1,42 +1,38 @@
-# sampling a sine wave programmatically
 import numpy as np
-import matplotlib.pyplot as plt
-plt.style.use('ggplot')
+import scipy.fftpack as fftpack
 
-# sampling information
-Fs = 44100  # sample rate
-T = 1/Fs  # sampling period
-t = 0.1  # seconds of sampling
-N = Fs*t  # total points in signal
+# Define signal.
+Fs = 128  # Sampling rate.
+Ts = 1 / Fs  # Sampling interval.
+Time = np.arange(0, 10, Ts)  # Time vector.
+signal = np.cos(4*np.pi*Time) + np.cos(6*np.pi*Time) + np.cos(8*np.pi*Time)
 
-# signal information
-freq = 100  # in hertz, the desired natural frequency
-omega = 2*np.pi*freq  # angular frequency for sine waves
 
-t_vec = np.arange(N)*T  # time vector for plotting
-y = np.sin(omega*t_vec)
+def spectrum(sig, t):
+    """
+    Represent given signal in frequency domain.
+    :param sig: signal.
+    :param t: time scale.
+    :return:
+    """
+    f = fftpack.rfftfreq(sig.size, d=t[1]-t[0])
+    y = fftpack.rfft(sig)
+    return f, np.abs(y)
 
-# plt.plot(t_vec,y)
-# plt.show()
 
-# fourier transform and frequency domain
-#
-Y_k = np.fft.fft(y)[0:int(N / 2)] / N  # FFT function from numpy
-print("Y_k.shape = %d" % Y_k.shape)
-print("len(Y_k) = %d" % len(Y_k))
-Y_k[1:] = 2*Y_k[1:]  # need to take the single-sided spectrum only
-print("Y_k.shape = %d" % Y_k.shape)
-print("len(Y_k) = %d" % len(Y_k))
-Pxx = np.abs(Y_k)  # be sure to get rid of imaginary part
-print("Pxx.shape = %d" % Pxx.shape)
+def bandpass(f, sig, min_freq, max_freq):
+    """
+    Bandpass signal in a specified by min_freq and max_freq frequency range.
+    :param f: frequency.
+    :param sig: signal.
+    :param min_freq: minimum frequency.
+    :param max_freq: maximum frequency.
+    :return:
+    """
+    return np.where(np.logical_or(f < min_freq, f > max_freq), sig, 0)
 
-f = Fs*np.arange((N/2))/N  # frequency vector
-print("f.shape = %d" % f.shape)
 
-# plotting
-fig, ax = plt.subplots()
-# plt.plot(f, Pxx, linewidth=5)
-plt.plot(f, Pxx)
-plt.ylabel('Amplitude')
-plt.xlabel('Frequency [Hz]')
-plt.show()
+freq, spec = spectrum(signal, Time)
+signal_filtered = fftpack.irfft(bandpass(freq, spec, 5, 7))
+
+print(signal_filtered)
