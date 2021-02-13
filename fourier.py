@@ -77,56 +77,58 @@ def plotBestFFTProducts(soundBuilder, titlePrefix="", show=True):
     if show == True:
         soundBuilder.showPlots()
 
+
+def tryFFTWindows():
+    sb = SoundBuilder(rawFile="21-02-11_17-17-02.raw", sampleRate=8000)
+    WINDOW_SIZE_SECONDS = 0.1
+    t_seconds = 56.5
+    while t_seconds < 57.8:
+        plotBestFFTProducts(
+            sb.getClip(startTime=t_seconds,
+                       endTime=t_seconds + WINDOW_SIZE_SECONDS),
+            show=False,
+            titlePrefix=f"{t_seconds:.2f} sec. to {t_seconds + WINDOW_SIZE_SECONDS:.2f} sec."
+        )
+        t_seconds += WINDOW_SIZE_SECONDS
+    sb.showPlots()
+
+
+def testFiltersOnGeneratedSineWaves():
+    tenIncrementedSineWaves = buildSoundWithNSineWaves(10, 200, 2200)
+    tenIncrementedSineWaves.writeWav("ten-sines.wav")
+    plotBestFFTProducts(tenIncrementedSineWaves,
+                        titlePrefix="ten-sines", show=False)
+    tenIncrementedSineWaves.highPassFilter(700)
+    tenIncrementedSineWaves.writeWav("ten-sines_HPF-700.wav")
+    plotBestFFTProducts(tenIncrementedSineWaves,
+                        titlePrefix="ten-sines_HPF-700", show=False)
+    tenIncrementedSineWaves.lowPassFilter(900)
+    tenIncrementedSineWaves.writeWav("ten-sines_BPF-700-900.wav")
+    plotBestFFTProducts(tenIncrementedSineWaves,
+                        titlePrefix="ten-sines_BPF-700-900", show=False)
+    tenIncrementedSineWaves.showPlots()
+
 # doFFTAndAllPlots(buildDialTone())
 
 # doFFTAndAllPlots(buildSoundWithNRandomSineWaves(10))
-
-
-# plotBestFFTProducts(buildDialTone())
-
-# plotBestFFTProducts(buildSoundWithNRandomSineWaves(10))
-
-# TODO: wrap in function
-# tenIncrementedSineWaves = buildSoundWithNSineWaves(10, 200, 2200)
-# tenIncrementedSineWaves.writeWav("ten-sines.wav")
-# plotBestFFTProducts(tenIncrementedSineWaves,
-#                     titlePrefix="ten-sines", show=False)
-# tenIncrementedSineWaves.highPassFilter(700)
-# tenIncrementedSineWaves.writeWav("ten-sines_HPF-700.wav")
-# plotBestFFTProducts(tenIncrementedSineWaves,
-#                     titlePrefix="ten-sines_HPF-700", show=False)
-# tenIncrementedSineWaves.lowPassFilter(900)
-# tenIncrementedSineWaves.writeWav("ten-sines_BPF-700-900.wav")
-# plotBestFFTProducts(tenIncrementedSineWaves,
-#                     titlePrefix="ten-sines_BPF-700-900", show=False)
-# tenIncrementedSineWaves.showPlots()
-
-# TODO: wrap in function
-# dialTone = buildDialTone()
-# dialTone.writeWav("dialTone.wav")
-# dialTone.lowPassFilter(400)
-# dialTone.writeWav("dialTone_LPF-400.wav")
-
 
 # doFFTAndAllPlots(
 #     SoundBuilder(wavFile="classical_mono.wav")
 # )
 
-# TODO: wrap in function
-# sb = SoundBuilder(rawFile="21-02-11_17-17-02.raw", sampleRate=8000)
-# WINDOW_SIZE_SECONDS = 0.1
-# t_seconds = 56.5
-# while t_seconds < 57.8:
-#     doFFTAndAllPlots(
-#         sb.getClip(startTime=t_seconds,
-#                    endTime=t_seconds + WINDOW_SIZE_SECONDS),
-#         show=False,
-#         titlePrefix=f"{t_seconds:.2f} sec. to {t_seconds + WINDOW_SIZE_SECONDS:.2f} sec."
-#     )
-#     t_seconds += WINDOW_SIZE_SECONDS
-# sb.showPlots()
+# tryFFTWindows()
 
-# fourier.getConstituentFrequencies(soundBuilder.getSamples(), sampleRate=128000)
+# plotBestFFTProducts(buildDialTone())
+
+# plotBestFFTProducts(buildSoundWithNRandomSineWaves(10))
+
+# dialTone = buildDialTone()
+# dialTone.writeWav("dialTone.wav")
+# dialTone.lowPassFilter(400)
+# dialTone.writeWav("dialTone_LPF-400.wav")
+
+# testFiltersOnGeneratedSineWaves()
+
 
 meWhistling = SoundBuilder(
     rawFile="21-02-11_17-17-02.raw",
@@ -135,4 +137,3 @@ meWhistling = SoundBuilder(
 meWhistling.writeWav("whistling.wav")
 meWhistling.bandPassFilter(1500, 1700)
 meWhistling.writeWav("whistling_BPF-1500-1700.wav")
-# TODO: read SO post about 'rectangular' gotcha

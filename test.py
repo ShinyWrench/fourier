@@ -1,3 +1,6 @@
+# Taken from Stack Overflow:
+# https://stackoverflow.com/a/29545236/4443890
+
 import numpy as np
 import scipy.fftpack as fftpack
 

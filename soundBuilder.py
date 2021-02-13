@@ -264,9 +264,10 @@ class SoundBuilder:
     def _imposeMaximum(self, maximumSampleValue):
         self.samples_float = np.minimum(self.samples_float, maximumSampleValue)
 
-    # TODO: Learn how to use filters
-    #           https://scipy-lectures.org/intro/scipy/auto_examples/plot_fftpack.html
-    #       Record something with noise in background (low or high) and filter it out
+    # TODO: START NEW PROGRAM AND MOVE THESE TODOs
+    #
+    # TODO: read SO post about 'rectangular' gotcha
+    #       https://stackoverflow.com/a/19122540/4443890
     # TODO: Experiment with wave phase
     # TODO: Plot power and any other interesting, conceptually critical representations
     #           of FFT results (energy, acceleration, etc.)
