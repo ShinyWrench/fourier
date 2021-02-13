@@ -82,6 +82,23 @@ class SoundBuilder:
             self.samples_float
         )
 
+    def plotFFT(self, titlePrefix=""):
+
+        fftResult = self.fft()
+
+        sampleIndices = np.arange(self.numSamples)
+        frequencies = self.sampleRate / self.numSamples * \
+            sampleIndices[:self.numSamples // 2]
+
+        amplitudes = 2 * \
+            np.abs(fftResult[:self.numSamples // 2]) / self.numSamples
+
+        plt.figure()
+        plt.title("Amplitude vs. Frequency")
+        plt.xlabel("Frequency")
+        plt.ylabel("Amplitude")
+        plt.plot(frequencies, amplitudes)
+
     def plotAllFFTProducts(self, titlePrefix=""):
 
         fftResult = self.fftShifted()
@@ -209,11 +226,11 @@ class SoundBuilder:
     def _imposeMaximum(self, maximumSampleValue):
         self.samples_float = np.minimum(self.samples_float, maximumSampleValue)
 
+    # TODO: Handle spike diffusion (important for choosing processing parameters)
+    #           https://stackoverflow.com/a/62724581/4443890
     # TODO: Experiment with wave phase
     # TODO: Plot power and any other interesting, conceptually critical representations
     #           of FFT results (energy, acceleration, etc.)
-    # TODO: Handle spike diffusion (important for choosing processing parameters)
-    #           https://stackoverflow.com/a/62724581/4443890
     # TODO: Learn how to use filters
     #           https://scipy-lectures.org/intro/scipy/auto_examples/plot_fftpack.html
     #       Record something with noise in background (low or high) and filter it out

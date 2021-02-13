@@ -5,15 +5,19 @@ from random import randint, random
 
 
 def buildDialTone():
+    SAMPLE_RATE = 8000
     # soundBuilder = SoundBuilder(sampleRate=44100, numSamples=3 * 44100)
-    soundBuilder = SoundBuilder(sampleRate=8000, numSamples=24000)
+    soundBuilder = SoundBuilder(
+        sampleRate=SAMPLE_RATE, numSamples=3*SAMPLE_RATE)
     soundBuilder.addSineWave(440, 0.5)
     soundBuilder.addSineWave(350, 0.5)
     return soundBuilder
 
 
 def buildSoundWithNSineWaves(numWaves):
-    soundBuilder = SoundBuilder(sampleRate=44100, numSamples=44100*2)
+    SAMPLE_RATE = 44100
+    soundBuilder = SoundBuilder(
+        sampleRate=SAMPLE_RATE, numSamples=3*SAMPLE_RATE)
     for i in range(numWaves):
         frequency = randint(200, 2400)
         amplitude = random() / numWaves
@@ -23,7 +27,15 @@ def buildSoundWithNSineWaves(numWaves):
     return soundBuilder
 
 
-def doFFTAndPlots(soundBuilder, show=True, titlePrefix=""):
+def buildToneForSpikeDiffusionTest():
+    soundBuilder = SoundBuilder(
+        sampleRate=300, numSamples=3300)
+    soundBuilder.addSineWave(55, 1)
+    soundBuilder.addSineWave(80, 0.5)
+    return soundBuilder
+
+
+def doFFTAndAllPlots(soundBuilder, show=True, titlePrefix=""):
     # soundBuilder.plotAmplitudeVsTime(titlePrefix)
     soundBuilder.plotAllFFTProducts()
 
@@ -32,19 +44,34 @@ def doFFTAndPlots(soundBuilder, show=True, titlePrefix=""):
     print(" -----------------------")
     for peak in foundPeaks:
         print(
-            f"{str(peak['frequency']).rjust(7)} Hz  |  {peak['magnitude']:.4f}")
+            f"{('%.1f' % peak['frequency']).rjust(7)} Hz  |  {peak['magnitude']:.4f}")
 
     if show == True:
         soundBuilder.showPlots()
 
 
-doFFTAndPlots(buildDialTone())
+def plotFFT(soundBuilder, show=True):
+    # soundBuilder.plotAmplitudeVsTime(titlePrefix)
+    soundBuilder.plotFFT()
 
-# sbGenerated = buildSoundWithNSineWaves(10)
-# sbGenerated.writeWav("generated.wav")
-# doFFTAndPlots(sbGenerated)
+    foundPeaks = soundBuilder.getFrequencyPeaksFromFFT()
+    print("\n    Freq.   |  Ampl.  ")
+    print(" -----------------------")
+    for peak in foundPeaks:
+        print(
+            f"{('%.1f' % peak['frequency']).rjust(7)} Hz  |  {peak['magnitude']:.4f}")
 
-# doFFTAndPlots(
+    if show == True:
+        soundBuilder.showPlots()
+
+# doFFTAndAllPlots(buildDialTone())
+
+# doFFTAndAllPlots(buildSoundWithNSineWaves(10))
+
+
+plotFFT(buildToneForSpikeDiffusionTest())
+
+# doFFTAndAllPlots(
 #     SoundBuilder(wavFile="classical_mono.wav")
 # )
 
@@ -52,7 +79,7 @@ doFFTAndPlots(buildDialTone())
 # WINDOW_SIZE_SECONDS = 0.1
 # t_seconds = 56.5
 # while t_seconds < 57.8:
-#     doFFTAndPlots(
+#     doFFTAndAllPlots(
 #         sb.getClip(startTime=t_seconds,
 #                    endTime=t_seconds + WINDOW_SIZE_SECONDS),
 #         show=False,
