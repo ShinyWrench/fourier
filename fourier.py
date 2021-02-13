@@ -6,7 +6,7 @@ from random import randint, random
 
 def buildDialTone():
     # soundBuilder = SoundBuilder(sampleRate=44100, numSamples=3 * 44100)
-    soundBuilder = SoundBuilder(sampleRate=1337, numSamples=16000)
+    soundBuilder = SoundBuilder(sampleRate=8000, numSamples=24000)
     soundBuilder.addSineWave(440, 0.5)
     soundBuilder.addSineWave(350, 0.5)
     return soundBuilder
@@ -25,7 +25,6 @@ def buildSoundWithNSineWaves(numWaves):
 
 def doFFTAndPlots(soundBuilder, show=True, titlePrefix=""):
     # soundBuilder.plotAmplitudeVsTime(titlePrefix)
-    # soundBuilder.plotFFT(titlePrefix)
     soundBuilder.plotAllFFTProducts()
 
     foundPeaks = soundBuilder.getFrequencyPeaksFromFFT()

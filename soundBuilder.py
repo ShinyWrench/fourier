@@ -20,6 +20,21 @@ class SoundBuilder:
         samples_int16 = utils.bytesToInt16List(samples_binary)
         return samples_int16 / 32768
 
+    @staticmethod
+    def _plotNewFigure(xVector, yVector, title=None, xlabel=None, ylabel=None):
+        plt.figure()
+        if title != None:
+            plt.title(title)
+        if xlabel != None:
+            plt.xlabel(xlabel)
+        if ylabel != None:
+            plt.ylabel(ylabel)
+        plt.plot(xVector, yVector)
+
+    @staticmethod
+    def showPlots():
+        plt.show()
+
     def __init__(self, sampleRate=None, numSamples=None, floatSamples=None, wavFile=None, rawFile=None):
         if wavFile != None:
             self.readWavFile(wavFile)
@@ -67,47 +82,76 @@ class SoundBuilder:
             self.samples_float
         )
 
-    def plotFFT(self, titlePrefix=""):
-        fftResult = np.fft.fft(self.samples_float)
-        frequencyVector, magnitudes = self._getMagnitudePlotDataFromFFTResult(
-            fftResult)
-        self._plotFFTMagnitudes(frequencyVector, magnitudes)
-
     def plotAllFFTProducts(self, titlePrefix=""):
 
-        fftResult = np.fft.fft(self.samples_float)
+        fftResult = self.fftShifted()
+        absFFTResult = np.abs(fftResult)
+        amplitudes = np.abs(fftResult / len(fftResult))
+        # Positive frequencies are on right side of shifted FFT result
+        amplitudesMappedToPositiveFrequencies = 2 * \
+            amplitudes[len(fftResult)//2:]
 
-        # Plot (absolute values of) raw result vs. sample indices
-        sampleIndices, rawFFTResult = self._getRawPlotDataFromFFTResult(
-            fftResult)
-        self._plotFFTRawResult(sampleIndices, rawFFTResult)
+        sampleIndices = np.arange(self.numSamples)
+        self._plotNewFigure(
+            xVector=sampleIndices,
+            yVector=absFFTResult,
+            title="FFT Raw Result Magnitude vs. Sample Index",
+            xlabel="Sample Index",
+            ylabel="Magnitude"
+        )
 
-        # Plot (absolute values of) raw result vs. normalized frequencies
-        frequencyVector, rawFFTResult = self._getNormalizedFrequencyPlotDataFromFFTResult(
-            fftResult)
-        self._plotFFTNormalizedFrequencies(frequencyVector, rawFFTResult)
+        normalizedFrequencies = self._getNormalizedFrequencies()
+        self._plotNewFigure(
+            xVector=normalizedFrequencies,
+            yVector=absFFTResult,
+            title="FFT Raw Result Magnitude vs. Normalized Frequency (full range)",
+            xlabel="Frequency",
+            ylabel="Magnitude"
+        )
 
-        # TODO: Plot more intermediate products
-        #       Plot only the most interesting, conceptually critical representations
-        #           of FFT results (power, energy, normalized, full, half, absolute, etc.)
+        absoluteFrequencies = self._getAbsoluteFrequencies()
+        self._plotNewFigure(
+            xVector=absoluteFrequencies,
+            yVector=absFFTResult,
+            title="FFT Raw Result Magnitude vs. Absolute Frequency (full range)",
+            xlabel="Frequency",
+            ylabel="Magnitude"
+        )
 
-        frequencyVector, magnitudes = self._getMagnitudePlotDataFromFFTResult(
-            fftResult)
-        self._plotFFTMagnitudes(frequencyVector, magnitudes)
+        absoluteFrequencies = self._getAbsoluteFrequencies()
+        self._plotNewFigure(
+            xVector=absoluteFrequencies,
+            yVector=amplitudes,
+            title="Amplitude vs. Absolute Frequency (full range)",
+            xlabel="Frequency",
+            ylabel="Amplitude"
+        )
+
+        positiveAbsoluteFrequencies = self._getPositiveAbsoluteFrequencies()
+        self._plotNewFigure(
+            xVector=positiveAbsoluteFrequencies,
+            yVector=amplitudesMappedToPositiveFrequencies,
+            title="Amplitude vs. Absolute Frequency",
+            xlabel="Frequency",
+            ylabel="Amplitude"
+        )
+
+        # TODO: Plot power and any other interesting, conceptually critical representations
+        #           of FFT results (energy, acceleration, etc.)
 
     def getFrequencyPeaksFromFFT(self, magnitudeThreshold=0.001):
-        fftResult = np.fft.fft(self.samples_float)
-        frequencyVector, magnitudes = self._getMagnitudePlotDataFromFFTResult(
-            fftResult)
+        fftResult = np.abs(self.fft())
+        amplitudes = np.abs(fftResult / len(fftResult))
+        # Positive frequencies are on left side of non-shifted FFT result
+        amplitudesMappedToPositiveFrequencies = 2 * \
+            amplitudes[:len(fftResult)//2]
+        frequencyVector = self._getPositiveAbsoluteFrequencies()
         return [
             {
                 "frequency": frequencyVector[peakIndex],
-                "magnitude": magnitudes[peakIndex]
-            } for peakIndex in scipy.signal.find_peaks(magnitudes, threshold=0.0001)[0]
+                "magnitude": amplitudesMappedToPositiveFrequencies[peakIndex]
+            } for peakIndex in scipy.signal.find_peaks(amplitudesMappedToPositiveFrequencies, threshold=0.0001)[0]
         ]
-
-    def showPlots(self):
-        plt.show()
 
     def readRawFile(self, fileName, sampleRate):
         self.sampleRate = sampleRate
@@ -148,48 +192,19 @@ class SoundBuilder:
     def fft(self):
         return np.fft.fft(self.samples_float)
 
-    def _getRawPlotDataFromFFTResult(self, fftResult):
-        return np.arange(len(fftResult)), np.abs(fftResult)
+    def fftShifted(self):
+        return np.fft.fftshift(np.fft.fft(self.samples_float))
 
-    def _plotFFTRawResult(self, sampleIndices, rawFFTResult, titlePrefix=""):
-        plt.figure()
-        plt.title(
-            f"{titlePrefix}{' -- ' if len(titlePrefix) > 0 else ''}FFT Raw Result")
-        plt.xlabel("Sample Index")
-        plt.ylabel("FFT Result")
-        plt.plot(
-            sampleIndices,
-            np.abs(rawFFTResult)
-        )
+    def _getNormalizedFrequencies(self):
+        indicesCenteredAboutZero = np.arange(
+            start=-int(self.numSamples)/2, stop=self.numSamples/2)
+        return indicesCenteredAboutZero / self.numSamples
 
-    def _getNormalizedFrequencyPlotDataFromFFTResult(self, fftResult):
-        return np.arange(len(fftResult)) / len(fftResult), np.abs(fftResult)
+    def _getAbsoluteFrequencies(self):
+        return self._getNormalizedFrequencies() * self.sampleRate
 
-    def _plotFFTNormalizedFrequencies(self, normalizedFrequencies, rawFFTResult, titlePrefix=""):
-        plt.figure()
-        plt.title(
-            f"{titlePrefix}{' -- ' if len(titlePrefix) > 0 else ''}FFT Raw Result (vs. normalized frequencies)")
-        plt.xlabel("Frequency")
-        plt.ylabel("FFT Result")
-        plt.plot(
-            normalizedFrequencies,
-            np.abs(rawFFTResult)
-        )
-
-    def _getMagnitudePlotDataFromFFTResult(self, fftResult):
-        frequencyVector = self.sampleRate * \
-            np.arange(self.numSamples // 2) / self.numSamples
-        magnitudes = fftResult[:self.numSamples // 2] / self.numSamples
-        magnitudes[1:] = 2 * magnitudes[1:]
-        magnitudes = np.abs(magnitudes)
-        return frequencyVector, magnitudes
-
-    def _plotFFTMagnitudes(self, frequencyVector, magnitudes, titlePrefix=""):
-        plt.figure()
-        plt.title(titlePrefix)
-        plt.xlabel("Frequency")
-        plt.ylabel("Magnitude")
-        plt.plot(frequencyVector, magnitudes)
+    def _getPositiveAbsoluteFrequencies(self):
+        return self._getAbsoluteFrequencies()[self.numSamples // 2:]
 
     def _imposeMinimum(self, minimumSampleValue):
         self.samples_float = np.maximum(self.samples_float, minimumSampleValue)
